@@ -6,7 +6,6 @@
 INSTALL dotenv 
 1. To install run <npm install dotenv> on the terminal
 2. require("dotenv").config()
-
 INSTALL mongoose for data base
 1. To install < npm install mongoose>
 2. const mongoose = require ("mongoose")
