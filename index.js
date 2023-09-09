@@ -39,6 +39,7 @@ const Person = mongoose.model("person", personsSchema); //*** this used to perfo
 // special NOTE: C.R.U.D create, read, update and destroy or delete
 
 app.set("view engine", "ejs"); // this sets view engine to ejs
+app.set('views', __dirname + '/views');
 app.use(bodyParser.urlencoded({ extended: false })); //  this is set up for body parser
 app.use(bodyParser.json()); // this is also a set up for body parser
 app.use(express.static(__dirname + "/public")); // all sta
@@ -112,6 +113,9 @@ app.post("/name", async (req, res) => {
   res.redirect("/name");
 });
 
+app.get('*', (req, res) => {
+  res.render('error'); // Customize the response as needed
+});
 app.listen(PORT, () => {
   console.log(`server is live on port ${PORT}`);
 });
