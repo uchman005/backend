@@ -4,7 +4,7 @@ const mongoose = require("mongoose"); /// this is used to communicate with mongo
 const bodyParser = require("body-parser"); // this is used to use to make request body available to the server
 const app = express(); // this is create an instance for an express
 //const secret = process.env.PAYSTACK_SECRET
-
+const auth = require("./auth")
 const PORT = process.env.PORT || 30001;
 //server set up ends here
 const MONGOURL = process.env.MONGOURL; // ***This paragraph handle the server connection
@@ -37,14 +37,13 @@ const personsSchema = new mongoose.Schema({
 
 const Person = mongoose.model("person", personsSchema); //*** this used to perform operation on the database
 // special NOTE: C.R.U.D create, read, update and destroy or delete
-
 app.set("view engine", "ejs"); // this sets view engine to ejs
-app.set('views', __dirname + '/views');
+app.set('views', __dirname + '/views'); // this tells where view folder for vercel###
 app.use(bodyParser.urlencoded({ extended: false })); //  this is set up for body parser
 app.use(bodyParser.json()); // this is also a set up for body parser
 app.use(express.static(__dirname + "/public")); // all sta
 const todos = [];
-
+app.use("/auth",auth)
 app.get("/", function (req, res) {
   // root route "/" this is wher the app starts
   res.render("index", { title: "JUMAX HOME" });
@@ -113,9 +112,6 @@ app.post("/name", async (req, res) => {
   res.redirect("/name");
 });
 
-app.get('*', (req, res) => {
-  res.render('error'); // Customize the response as needed
-});
 app.listen(PORT, () => {
   console.log(`server is live on port ${PORT}`);
 });
