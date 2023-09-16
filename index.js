@@ -7,7 +7,7 @@ const app = express(); // this is create an instance for an express
 const auth = require("./auth")
 const PORT = process.env.PORT || 30001;
 //server set up ends here
-const MONGOURL = process.env.MONGOURL; // ***This paragraph handle the server connection
+const MONGOURL = process.env.MONGOURL; // ***This paragraph handle the server connection 
 mongoose.connect(MONGOURL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -26,7 +26,7 @@ DB.on("error", (error) => {
  //*** this used to perform operation on the database
 // special NOTE: C.R.U.D create, read, update and destroy or delete
 app.set("view engine", "ejs"); // this sets view engine to ejs
-app.set('views', __dirname + '/views'); // this tells where view folder for vercel###
+app.set('views', __dirname + '/views'); // this tells where view folder for vercel##
 app.use(bodyParser.urlencoded({ extended: false })); //  this is set up for body parser
 app.use(bodyParser.json()); // this is also a set up for body parser
 app.use(express.static(__dirname + "/public")); // all sta
