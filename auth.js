@@ -42,6 +42,5 @@ router.post("/signup", async (req, res) => {
   }
   // This section saves the saves the users information in the database
   res.redirect("/auth/login");
-  console.log(err);
 });
 module.exports = router;
