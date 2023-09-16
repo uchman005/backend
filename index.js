@@ -23,19 +23,7 @@ DB.on("error", (error) => {
 // ###the helper that to know the condition of the connected server
 
 // schema is used indicate or limit or control the kind of objects that will be allowed in a particular database.
-const personsSchema = new mongoose.Schema({
-  // This paragraph helps to set my data forms
-  name: String, // String is shorthand for {type: String}
-  age: Number,
-  color: String,
-  date: { type: Date, default: Date.now },
-  height: String,
-});
-// modelling ends here
-
-// Modelling
-
-const Person = mongoose.model("person", personsSchema); //*** this used to perform operation on the database
+ //*** this used to perform operation on the database
 // special NOTE: C.R.U.D create, read, update and destroy or delete
 app.set("view engine", "ejs"); // this sets view engine to ejs
 app.set('views', __dirname + '/views'); // this tells where view folder for vercel###

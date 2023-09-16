@@ -36,28 +36,31 @@
                 <div class="col-xxl-4 col-xl-5 col-lg-6 col-sm-8 mx-auto">
                     <div class="log-in-box">
                         <div class="log-in-title">
-                            <h3>Welcome To Ju</h3>
+                            <h3>Welcome To Jumax</h3>
                             <h4>Create New Account</h4>
+                            <% if (error){%>
+                                <h4><%=error%></h4>
+                         <%}%>
                         </div>
 
                         <div class="input-box">
                             <form action="/auth/signup" method="post">
                                 <div class="col-12">
                                     <div class="form-floating theme-form-floating">
-                                        <input type="text" class="form-control" id="fullname" placeholder="Full Name">
+                                        <input type="text" name="name" class="form-control" minlength="3" required  id="fullname" placeholder="Full Name">
                                         <label for="fullname">Full Name</label>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-floating theme-form-floating">
-                                        <input type="email" class="form-control" id="email" placeholder="Email Address">
+                                        <input type="email" name="email" class="form-control" required id="email" placeholder="Email Address">
                                         <label for="email">Email Address</label>
                                     </div>
                                 </div>
 
                                 <div class="col-12">
                                     <div class="form-floating theme-form-floating">
-                                        <input type="password" class="form-control" id="password" placeholder="Password">
+                                        <input type="password" name="password" class="form-control" required id="password" placeholder="Password">
                                         <label for="password">Password</label>
                                     </div>
                                 </div>
@@ -65,7 +68,7 @@
                                 <div class="col-12">
                                     <div class="forgot-box">
                                         <div class="form-check ps-0 m-0 remember-box">
-                                            <input class="checkbox_animated check-box" type="checkbox" id="flexCheckDefault">
+                                            <input class="checkbox_animated check-box" required checked type="checkbox" id="flexCheckDefault">
                                             <label class="form-check-label" for="flexCheckDefault">I agree with
                                                 <span>Terms</span> and <span>Privacy</span></label>
                                         </div>
