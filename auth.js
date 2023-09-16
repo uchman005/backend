@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt"); // this is a pkg used for end to end password encrypton
-const saltRounds = 10;
 const personsSchema = new mongoose.Schema({
   // This paragraph helps to set my data forms
   name: String, // String is shorthand for {type: String}
@@ -24,31 +23,24 @@ router.get("/login", (req, res) => {
 router.get("/signup", (req, res) => {
   res.render("auth/signup", { title: "jumax signup", error: null });
 });
-router.post("/signup",(req, res) => {
+router.post("/signup", async (req, res) => {
   let { name, email, password } = req.body;
-let err = ''
-  bcrypt.genSalt(saltRounds, function (err, salt) {
-    // this is used for end to end password encrypton# go to npm pkg site to view
-    bcrypt.hash(password, salt, async function (err, hash) {
-
-      const newUser = new Person({     //   this section handles new user datas
-        name: name,
-        email: email,
-        password: hash,
-     })  // Store hash in your password DB.
-     try {
-      await newUser.save() // this section catches error message
-     } catch (error) {
-      if (error){
-        err=error
-      }
-     }  
-      // This section saves the saves the users information in the database
-    });
-  });
-//   return res.render('auth/signup', { error:' email already in use', title: 'jumax signup'})
-        
-// res.redirect('/auth/login')
-console.log(err);
+  let salt = await bcrypt.genSalt(10);//Generate salt
+  // this is used for end to end password encrypton# go to npm pkg site to view
+  let hash = await bcrypt.hash(password, salt);// Hash password
+  const newUser = new Person({     //   this section handles new user datas
+    name: name,
+    email: email,
+    password: hash,
+  })
+  try {
+    await newUser.save() // this section catches error message
+  } catch (error) {
+    if (error) {
+      return res.render('auth/signup', { error: ' email already in use', title: 'jumax signup' })
+    }
+  }
+  // This section saves the saves the users information in the database
+  res.redirect("/auth/login");
 });
 module.exports = router;
