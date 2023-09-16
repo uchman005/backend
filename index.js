@@ -28,7 +28,7 @@ DB.on("error", (error) => {
 app.set("view engine", "ejs"); // this sets view engine to ejs
 app.set('views', __dirname + '/views'); // this tells where view folder for vercel##
 app.use(bodyParser.urlencoded({ extended: false })); //  this is set up for body parser
-app.use(bodyParser.json()); // this is also a set up for body parser
+app.use(bodyParser.json()); // this is also a set up for body parser/ this set up a req.body to object
 app.use(express.static(__dirname + "/public")); // all sta
 const todos = [];
 app.use("/auth",auth)
