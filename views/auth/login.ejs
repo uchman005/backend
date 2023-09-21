@@ -38,6 +38,11 @@
                         <div class="log-in-title">
                             <h3>Welcome To Jumax</h3>
                             <h4>Log In Your Account</h4>
+                            <% if (messages.error) { %>
+                                <div class="alert alert-danger" role="alert">
+                                    <%= messages.error %>
+                                </div>
+                            <% } %>
                         </div>
 
                         <div class="input-box">
