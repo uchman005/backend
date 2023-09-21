@@ -1,32 +1,42 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const bcrypt = require("bcrypt"); // this is a pkg used for end to end password encrypton
 const initialize = require("./passport")
 const passport = require("passport")
-initialize(passport)
-const personsSchema = new mongoose.Schema({
-  // This paragraph helps to set my data forms
-  name: String, // String is shorthand for {type: String}
-  email: { type: String, unique: true, required: true },
-  password: { type: String, required: true },
-  date: { type: Date, default: Date.now },
-  balance: { type: Number, default: 0.0 },
-  role: { type: String, default: "user" },
-});
-// modelling ends here
+const Person = require("./models");
+const { checkNotAuthenticated } = require("./libs/auth") // this is a middleware that checks if a user is authenticated
+initialize(passport, async (email) => {
+  return await Person.find({ email: email }).then((user) => {
+    if (user == []) {
+      return null;
+    }
+    user = user.pop();
+    return user;
+  }
+  ) // this section handles user login by email
+},
+  async (id) => {
+    return await Person.find({ _id: id }).then((user) => {
+      if (user == []) {
+        return null;
+      }
+      user = user.pop();
+      return user;
+    }
+    )// this section handles fetching user data by id
 
-// Modelling
+  }
 
-const Person = mongoose.model("person", personsSchema);
-
+); //this section initializes passport and passes the user data to the passport.js file
+// A middleware is a function that has access to the request and response object and the next function in the application's request-response cycle. The next function is a function in the Express router which, when invoked, executes the middleware succeeding the current middleware.
+//I designed it in the libs/auth.js file
 const router = express.Router();
-router.get("/login", (req, res) => {
+router.get("/login", checkNotAuthenticated, (req, res) => {
   res.render("auth/login", { title: "jumax login" });
 });
-router.get("/signup", (req, res) => {
+router.get("/signup", checkNotAuthenticated, (req, res) => {
   res.render("auth/signup", { title: "jumax signup", error: null });
 });
-router.post("/signup", async (req, res) => {
+router.post("/signup", checkNotAuthenticated, async (req, res) => {
   let { name, email, password } = req.body;
   let salt = await bcrypt.genSalt(10); //Generate salt
   // this is used for end to end password encrypton# go to npm pkg site to view
@@ -50,15 +60,25 @@ router.post("/signup", async (req, res) => {
   // This section saves the saves the users information in the database
   res.redirect("/auth/login");
 });
-router.post("/login", async(req, res) => {
-  let email=req.body.email;
-  let password=req.body.password;
-  let user=await Person.find({email:email})
-  console.log(user.pop());
-  
-  
-  let passwordMatch=await bcrypt.compare(password,user.pop().password)
-  console.log(passwordMatch);
+router.post("/login", passport.authenticate("local", { // this section authenticates the user
+  successRedirect: "/dashboard", // this section redirects the user to the dashboard if the user is authenticated
+  failureRedirect: "/auth/login", // this section redirects the user to the login page if the user is not authenticated
+  failureFlash: true // this section flashes a message if the user is not authenticated
+}));
+router.get("/logout", (req, res) => {
+  req.logOut(()=>{console.log("logged out")}); // this section logs out the user
+  res.redirect("/auth/login");
 });
+
+// router.post("/login", async(req, res) => {
+//   let email=req.body.email;
+//   let password=req.body.password;
+//   let user=await Person.find({email:email})
+//   console.log(user.pop());
+
+
+//   let passwordMatch=await bcrypt.compare(password,user.pop().password)
+//   console.log(passwordMatch);
+// });
 
 module.exports = router;

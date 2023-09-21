@@ -1,8 +1,13 @@
-require("dotenv").config(); // this loads env files to server
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config(); // this loads env files to server
+}
 const express = require("express"); // // this is a very fast server
 const mongoose = require("mongoose"); /// this is used to communicate with mongo dbs or any non relational data base
 const bodyParser = require("body-parser"); // this is used to use to make request body available to the server
 const app = express(); // this is create an instance for an express
+const flash = require("express-flash");
+const passport = require("passport");
+const session = require("express-session");
 //const secret = process.env.PAYSTACK_SECRET
 const auth = require("./auth")
 const PORT = process.env.PORT || 30001;
@@ -23,15 +28,24 @@ DB.on("error", (error) => {
 // ###the helper that to know the condition of the connected server
 
 // schema is used indicate or limit or control the kind of objects that will be allowed in a particular database.
- //*** this used to perform operation on the database
+//*** this used to perform operation on the database
 // special NOTE: C.R.U.D create, read, update and destroy or delete
 app.set("view engine", "ejs"); // this sets view engine to ejs
 app.set('views', __dirname + '/views'); // this tells where view folder for vercel##
 app.use(bodyParser.urlencoded({ extended: false })); //  this is set up for body parser
 app.use(bodyParser.json()); // this is also a set up for body parser/ this set up a req.body to object
 app.use(express.static(__dirname + "/public")); // all sta
+app.use(flash()); // this is used to flash messages to the user
+const { checkAuthenticated } = require("./libs/auth");
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+})); // this is used to set up session
+app.use(passport.initialize()); // this is used to initialize passport
+app.use(passport.session()); // this is used to set up passport session
 const todos = [];
-app.use("/auth",auth)
+app.use("/auth", auth)
 app.get("/", function (req, res) {
   // root route "/" this is wher the app starts
   res.render("index", { title: "JUMAX HOME" });
@@ -47,13 +61,17 @@ app.post("/addtodo", (req, res) => {
   res.redirect("/todo");
   //res.json(todos)
 });
+
 // note: app.post for a post route
 // app.get for a get route
 // // app.get for will start a server at a particular
 app.get("/todo", (req, res) => {
   res.render("todo", { todos });
 });
-
+app.get('/dashboard', checkAuthenticated, async (req, res) => {
+  const user = await req.user
+  res.render('dashboard', { title: 'jumax dashboard', user: user })
+}); // this is a protected route
 app.get("/name", async (req, res) => {
   const people = await Person.find();
   //console.log(people);
@@ -64,11 +82,11 @@ app.get("/pages/about", (req, res) => {
   res.render("pages/about", { title: "JUMAX ABOUT" });
 });
 
-app.get('/pages/:page',(req, res)=>{
+app.get('/pages/:page', (req, res) => {
   let page = req.params.page
   let x = `JUMAX ${page.toUpperCase()}`
-  res.render('pages/'+ page, {title:x}) 
-  
+  res.render('pages/' + page, { title: x })
+
 })
 
 app.get("/name/id", (req, res) => {
