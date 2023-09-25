@@ -16,4 +16,5 @@ const checkNotAuthenticated = (req, res, next) => { // use this function to chec
 //   const user = await req.user
 //   res.render('dashboard', { title: 'jumax dashboard', user: user })
 // });
+// export{checkAuthenticated, checkNotAuthenticated }
 module.exports = { checkAuthenticated, checkNotAuthenticated }

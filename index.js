@@ -1,20 +1,21 @@
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config(); // this loads env files to server
 }
+//import express from "express"
 const express = require("express"); // // this is a very fast server
 const mongoose = require("mongoose"); /// this is used to communicate with mongo dbs or any non relational data base
-const bodyParser = require("body-parser"); // this is used to use to make request body available to the server
+const bodyParser = require("body-parser"); // this is used to use to make request body available to the server (this is used to create req.body)
 const app = express(); // this is create an instance for an express
-const flash = require("express-flash");
-const passport = require("passport");
-const session = require("express-session");
+const flash = require("express-flash");// this is used to send message for one who re in session
+const passport = require("passport"); // passport is used to aunthenticate and create session
+const session = require("express-session");// this is used to create sessions for users in the database so that they will be recognised when they returned
 //const secret = process.env.PAYSTACK_SECRET
 const auth = require("./auth")
 const PORT = process.env.PORT || 30001;
 //server set up ends here
 const MONGOURL = process.env.MONGOURL; // ***This paragraph handle the server connection 
-mongoose.connect(MONGOURL, {
-  useNewUrlParser: true,
+mongoose.connect(MONGOURL, {  // this takes 2 parameters# string option for database and the 2nd for option 
+  useNewUrlParser: true, 
   useUnifiedTopology: true,
 });
 // the connection to data base programme ends here
@@ -32,12 +33,12 @@ DB.on("error", (error) => {
 // special NOTE: C.R.U.D create, read, update and destroy or delete
 app.set("view engine", "ejs"); // this sets view engine to ejs
 app.set('views', __dirname + '/views'); // this tells where view folder for vercel##
-app.use(bodyParser.urlencoded({ extended: false })); //  this is set up for body parser
+app.use(bodyParser.urlencoded({ extended: false })); //  this is set up for body parser # helps to create req.body
 app.use(bodyParser.json()); // this is also a set up for body parser/ this set up a req.body to object
-app.use(express.static(__dirname + "/public")); // all sta
+app.use(express.static(__dirname + "/public")); // it tells the server  the location of the static files which is in public folder
 app.use(flash()); // this is used to flash messages to the user
-const { checkAuthenticated } = require("./libs/auth");
-app.use(session({
+const { checkAuthenticated } = require("./libs/auth");// this is for authentication purposes.
+app.use(session({ // this is used to create authentication for users
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
