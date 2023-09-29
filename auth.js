@@ -1,19 +1,20 @@
 const express = require("express");
 const bcrypt = require("bcrypt"); // this is a pkg used for end to end password encrypton
-const initialize = require("./passport")
-const passport = require("passport")
-const Person = require("./models");
-const { checkNotAuthenticated } = require("./libs/auth") // this is a middleware that checks if a user is authenticated
-initialize(passport, async (email) => {
-  return await Person.find({ email: email }).then((user) => {
-    if (user == []) {
-      return null;
-    }
-    user = user.pop();
-    return user;
-  }
-  ) // this section handles user login by email
-},
+const initialize = require("./passport");
+const passport = require("passport");
+const { Person } = require("./models");
+const { checkNotAuthenticated } = require("./libs/auth"); // this is a middleware that checks if a user is authenticated
+initialize(
+  passport,
+  async (email) => {
+    return await Person.find({ email: email }).then((user) => {
+      if (user == []) {
+        return null;
+      }
+      user = user.pop();
+      return user;
+    }); // this section handles user login by email
+  },
   async (id) => {
     return await Person.find({ _id: id }).then((user) => {
       if (user == []) {
@@ -21,11 +22,8 @@ initialize(passport, async (email) => {
       }
       user = user.pop();
       return user;
-    }
-    )// this section handles fetching user data by id
-
+    }); // this section handles fetching user data by id
   }
-
 ); //this section initializes passport and passes the user data to the passport.js file
 // A middleware is a function that has access to the request and response object and the next function in the application's request-response cycle. The next function is a function in the Express router which, when invoked, executes the middleware succeeding the current middleware.
 //I designed it in the libs/auth.js file
@@ -60,13 +58,19 @@ router.post("/signup", checkNotAuthenticated, async (req, res) => {
   // This section saves the saves the users information in the database
   res.redirect("/auth/login");
 });
-router.post("/login", passport.authenticate("local", { // this section authenticates the user
-  successRedirect: "/dashboard", // this section redirects the user to the dashboard if the user is authenticated
-  failureRedirect: "/auth/login", // this section redirects the user to the login page if the user is not authenticated
-  failureFlash: true // this section flashes a message if the user is not authenticated
-}));
+router.post(
+  "/login",
+  passport.authenticate("local", {
+    // this section authenticates the user
+    successRedirect: "/dashboard", // this section redirects the user to the dashboard if the user is authenticated
+    failureRedirect: "/auth/login", // this section redirects the user to the login page if the user is not authenticated
+    failureFlash: true, // this section flashes a message if the user is not authenticated
+  })
+);
 router.get("/logout", (req, res) => {
-  req.logOut(()=>{console.log("logged out")}); // this section logs out the user
+  req.logOut(() => {
+    console.log("logged out");
+  }); // this section logs out the user
   res.redirect("/auth/login");
 });
 
@@ -75,7 +79,6 @@ router.get("/logout", (req, res) => {
 //   let password=req.body.password;
 //   let user=await Person.find({email:email})
 //   console.log(user.pop());
-
 
 //   let passwordMatch=await bcrypt.compare(password,user.pop().password)
 //   console.log(passwordMatch);

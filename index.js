@@ -2,6 +2,8 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config(); // this loads env files to server
 }
 //import express from "express"
+const path = require("path")
+const {Person,Product} = require("./models")
 const express = require("express"); // // this is a very fast server
 const mongoose = require("mongoose"); /// this is used to communicate with mongo dbs or any non relational data base
 const bodyParser = require("body-parser"); // this is used to use to make request body available to the server (this is used to create req.body)
@@ -10,6 +12,20 @@ const flash = require("express-flash");// this is used to send message for one w
 const passport = require("passport"); // passport is used to aunthenticate and create session
 const session = require("express-session");// this is used to create sessions for users in the database so that they will be recognised when they returned
 //const secret = process.env.PAYSTACK_SECRET
+const multer  = require('multer')
+   // this section handles image upload
+   const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public/uploads/');
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);// this is for uniqueness of the uploaded files 
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));// this handles file names
+    },
+  });
+const upload = multer({storage:storage})
+// this section handles the destination where the file or image will be uploaded
+//const upload1 = multer({destination:"./public/views"})
 const auth = require("./auth")
 const PORT = process.env.PORT || 30001;
 //server set up ends here
@@ -119,6 +135,22 @@ app.post("/name", async (req, res) => {
   res.redirect("/name");
 });
 
+app.post("/pages/imageupload",upload.array ('file'), async(req, res) => {
+  const {name,details,price,quantity} = req.body
+  const image = req.files[0]
+  const filename=image.filename
+  const newProduct= new Product({
+    name:name,
+    details:details,
+    price:price,
+    quantity:quantity,
+    image:filename
+    
+  })
+  await newProduct.save()
+
+res.redirect('/')
+})
 app.listen(PORT, () => {
   console.log(`server is live on port ${PORT}`);
 });
