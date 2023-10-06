@@ -7,11 +7,10 @@ const { checkNotAuthenticated } = require("./libs/auth"); // this is a middlewar
 initialize(
   passport,
   async (email) => {
-    return await Person.find({ email: email }).then((user) => {
-      if (user == []) {
-        return null;
+    return await Person.findOne({ email: email }).then((user) => {
+      if (user == null) {
+        return user;
       }
-      user = user.pop();
       return user;
     }); // this section handles user login by email
   },
