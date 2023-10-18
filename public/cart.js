@@ -32,7 +32,6 @@
 // let updatePrice= ()=>{
 
 // }
-let priceBox=document.querySelector(".price-box>h4").innerText
-let total=priceBox.replace("$"," ") 
-
-console.log(priceBox);
+let priceBox=String(document.querySelector(".price-box>h4").innerText)
+let total=Number(priceBox.replace("$","") )
+console.log(total);
