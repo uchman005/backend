@@ -55,4 +55,3 @@ let updatePrice = () => {
     counter.innerHTML = count;
     document.querySelector('.price-box>h4').innerHTML = `$${total.toFixed(2)}`;
 }
->>>>>>> 1eb34cf5cc0f18adbc520dc510a976a507d6b4ed
