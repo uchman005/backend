@@ -346,7 +346,7 @@
                                                                     <h5>Fantasy Crunchy Choco Chip Cookies</h5>
                                                                 </a>
                                                                 <h6><span>1 x</span> <span class="item-price">$80.58</span></h6>
-                                                                <button class="close-button close_button">
+                                                                <button class="item-button">
                                                                     <i class="fa-solid fa-xmark"></i>
                                                                 </button>
                                                             </div>
@@ -363,7 +363,7 @@
                                                                     <h5>Fantasy Crunchy Choco Chip Cookies</h5>
                                                                 </a>
                                                                 <h6><span>1 x</span> <span class="item-price">$80.58</span></h6>
-                                                                <button class="close-button close_button">
+                                                                <button class="item-button">
                                                                     <i class="fa-solid fa-xmark"></i>
                                                                 </button>
                                                             </div>
@@ -382,7 +382,7 @@
                                                                     </h5>
                                                                 </a>
                                                                 <h6><span>1 x</span> <span class="item-price">$25.68</span> </h6>
-                                                                <button class="close-button close_button">
+                                                                <button class="item-button">
                                                                     <i class="fa-solid fa-xmark"></i>
                                                                 </button>
                                                             </div>
@@ -399,11 +399,10 @@
                             <a href="cart.html" class="btn btn-sm cart-button"
                               >View Cart</a
                             >
-                            <a
-                              href="checkout.html"
-                              class="btn btn-sm cart-button theme-bg-color text-white"
-                              >Checkout</a
-                            >
+                            <form action="/payment/initialize" method="post" > 
+                              <input type="hidden" name="amount" id="amount">
+                              <button class="btn btn-sm cart-button theme-bg-color text-white"> checkout</button>
+                            </form>
                           </div>
                         </div>
                       </div>
