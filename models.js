@@ -19,9 +19,19 @@ const productsSchema = new mongoose.Schema({
   quantity: { type: Number },
 });
 
+const TransactionSchema = new mongoose.Schema({
+  reference: String,
+  amount: Number,
+  status: String,
+  details: {type:Object, default: {}},
+  date: { type: Date, default: Date.now },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "person" },
+});
 // modelling ends here
 
 // Modelling
 const Product = mongoose.model("product", productsSchema);
 const Person = mongoose.model("person", personsSchema);
-module.exports = { Person, Product };
+const Transaction = mongoose.model("transaction", TransactionSchema);
+module.exports = { Person, Product, Transaction };
+
