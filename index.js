@@ -3,7 +3,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 //import express from "express"
 const path = require("path");
-const { Person, Product } = require("./models");
+const { Person, Product, Transaction } = require("./models");
 const express = require("express"); // // this is a very fast server
 const mongoose = require("mongoose"); /// this is used to communicate with mongo dbs or any non relational data base
 const bodyParser = require("body-parser"); // this is used to use to make request body available to the server (this is used to create req.body)
@@ -62,6 +62,7 @@ app.use(bodyParser.json()); // this is also a set up for body parser/ this set u
 app.use(express.static(__dirname + "/public")); // it tells the server  the location of the static files which is in public folder
 app.use(flash()); // this is used to flash messages to the user
 const { checkAuthenticated } = require("./libs/auth"); // this is for authentication purposes.
+const { Console } = require("console");
 app.use(
   session({
     // this is used to create authentication for users
@@ -75,9 +76,9 @@ app.use(passport.session()); // this is used to set up passport session
 const todos = [];
 app.use("/auth", auth);
 app.get("/", async function (req, res) {
-  const products = await Product.find({}) // this section finds everydata in database 
+  const products = await Product.find({}); // this section finds everydata in database
   // root route "/" this is wher the app starts
-  res.render("index", { title: "JUMAX HOME", products:products });
+  res.render("index", { title: "JUMAX HOME", products: products });
 });
 
 // app.get("/about", (req, res) => {
@@ -173,57 +174,104 @@ app.post("/pages/imageupload", upload.array("file"), async (req, res) => {
 
   res.redirect("/");
 });
-app.post('/payment/initialize',async (req, res) => {
+app.post("/payment/initialize", async (req, res) => {
   const amount = Number(req.body.amount);
   const user = await req.user;
-  const {email,name,_id}=user
+  const { email, name, _id } = user;
   // genarate a unique reference number from the date and time
   const date = new Date();
-  const ref = `${date.getTime()}_jumax_${_id}`;
-  const callback_url = `https://www.judemaxi.com`;
-  const https = require('https')
+  const ref = `${date.getTime()}_jumax_${_id}`; // this is to generate a unique reference number
+  const callback_url = `https://judemaxi.com/payment/callback`; // this is to redirect to the website after payment
 
-const params = JSON.stringify({
-  "email": email,
-  "amount": Math.ceil(amount*100),
-  "reference": ref,
- "callback_url": callback_url,
-  
-
-})
-console.log(amount);
-const options = {
-  hostname: 'api.paystack.co',
-  port: 443,
-  path: '/transaction/initialize',
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${PAYSTACK_SECRET}`,
-    'Content-Type': 'application/json'
-  }
-}
-
-const payreq = https.request(options, payres => {
-  let data = ''
-
-  payres.on('data', (chunk) => {
-    data += chunk
+  const params = JSON.stringify({
+    email: email,
+    amount: Math.ceil(amount * 100),
+    reference: ref,
+    callback_url: callback_url,
   });
+  const options = {
+    hostname: "api.paystack.co",
+    port: 443,
+    path: "/transaction/initialize",
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${PAYSTACK_SECRET}`,
+      "Content-Type": "application/json",
+    },
+  };
 
-  payres.on('end', () => {
-    console.log(JSON.parse(data))
-  })
-}).on('error', error => {
-  console.error(error)
-})
+  const payreq = https
+    .request(options, (payres) => {
+      let data = "";
 
-payreq.write(params)
-payreq.end()
-})
+      payres.on("data", (chunk) => {
+        data += chunk;
+      });
 
-app.get('/payment/callback', (req, res) => {
+      payres.on("end", () => {
+        // this is to end the request
+        const paydata = JSON.parse(data);
+        if (paydata.status) {
+          const transaction = new Transaction({
+            // this is to save transaction to database
+            reference: ref,
+            amount: amount,
+            status: "pending",
+            user: _id,
+          });
+          transaction.save();
+          res.redirect(paydata.data.authorization_url); // this is to redirect to paystack
+        } else {
+          res.redirect("/dashboard");
+        }
+      });
+    })
+    .on("error", (error) => {
+      res.redirect("/dashboard");
+    });
 
-})
+  payreq.write(params);
+  payreq.end();
+});
+
+app.get("/payment/callback", (req, res) => {
+  // this is to handle the callback from paystack
+  const ref = req.query.reference;
+
+  const options = {
+    hostname: "api.paystack.co",
+    port: 443,
+    path: "/transaction/verify/" + encodeURIComponent(ref) + "",
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${PAYSTACK_SECRET}`,
+    },
+  };
+
+  https
+    .request(options, (payres) => {
+      let data = "";
+
+      payres.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      payres.on("end", async () => {
+        const paydata = JSON.parse(data);
+        if (paydata.status) {
+          const transaction = await Transaction.findOne({ reference: ref }); // To retrievv the transaction from the database.
+          transaction.status = paydata.data.status; // this is to save data
+          transaction.details = paydata.data; // for transaction details
+          transaction.save();
+          res.redirect("/pages/success");
+        }
+        res.redirect("/dashboard");
+      });
+    })
+    .on("error", (error) => {
+      res.redirect("/dashboard");
+    });
+});
 app.listen(PORT, () => {
   console.log(`server is live on port ${PORT}`);
 });
