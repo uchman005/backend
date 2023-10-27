@@ -7,12 +7,10 @@ const addItem = (event) => {
     let productPrice = productDetail.querySelector(".price").innerText
     //let productImage=productDetail.querySelector(".product-image>a>img")
 
-<<<<<<< HEAD
-// }
-let priceBox=String(document.querySelector(".price-box>h4").innerText)
-let total=Number(priceBox.replace("$","") )
-console.log(total);
-=======
+    let priceBox = String(document.querySelector(".price-box>h4").innerText)
+    let total = Number(priceBox.replace("$", ""))
+    console.log(total);
+    
     let newItem = document.createElement("li")
     newItem.classList.add("product-box-contain")
     newItem.innerHTML = `<div class="drop-cart">
