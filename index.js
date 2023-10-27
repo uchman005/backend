@@ -13,6 +13,8 @@ const passport = require("passport"); // passport is used to aunthenticate and c
 const session = require("express-session"); // this is used to create sessions for users in the database so that they will be recognised when they returned
 //const secret = process.env.PAYSTACK_SECRET
 const multer = require("multer");
+const axios = require("axios");
+const https = require("https");
 // this section handles image upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -31,6 +33,8 @@ const upload = multer({ storage: storage });
 //const upload1 = multer({destination:"./public/views"})
 const auth = require("./auth");
 const PORT = process.env.PORT || 30001;
+const FLUTTER_SECRET_KEY = process.env.FLUTTER_SECRET_KEY;
+const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET;
 //server set up ends here
 const MONGOURL = process.env.MONGOURL; // ***This paragraph handle the server connection
 mongoose.connect(MONGOURL, {
@@ -169,6 +173,57 @@ app.post("/pages/imageupload", upload.array("file"), async (req, res) => {
 
   res.redirect("/");
 });
+app.post('/payment/initialize',async (req, res) => {
+  const amount = Number(req.body.amount);
+  const user = await req.user;
+  const {email,name,_id}=user
+  // genarate a unique reference number from the date and time
+  const date = new Date();
+  const ref = `${date.getTime()}_jumax_${_id}`;
+  const callback_url = `https://www.judemaxi.com`;
+  const https = require('https')
+
+const params = JSON.stringify({
+  "email": email,
+  "amount": Math.ceil(amount*100),
+  "reference": ref,
+ "callback_url": callback_url,
+  
+
+})
+console.log(amount);
+const options = {
+  hostname: 'api.paystack.co',
+  port: 443,
+  path: '/transaction/initialize',
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${PAYSTACK_SECRET}`,
+    'Content-Type': 'application/json'
+  }
+}
+
+const payreq = https.request(options, payres => {
+  let data = ''
+
+  payres.on('data', (chunk) => {
+    data += chunk
+  });
+
+  payres.on('end', () => {
+    console.log(JSON.parse(data))
+  })
+}).on('error', error => {
+  console.error(error)
+})
+
+payreq.write(params)
+payreq.end()
+})
+
+app.get('/payment/callback', (req, res) => {
+
+})
 app.listen(PORT, () => {
   console.log(`server is live on port ${PORT}`);
 });
