@@ -62,13 +62,13 @@ app.use(bodyParser.json()); // this is also a set up for body parser/ this set u
 app.use(express.static(__dirname + "/public")); // it tells the server  the location of the static files which is in public folder
 app.use(flash()); // this is used to flash messages to the user
 const { checkAuthenticated } = require("./libs/auth"); // this is for authentication purposes.
-const { Console } = require("console");
 app.use(
   session({
     // this is used to create authentication for users
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 },
   })
 ); // this is used to set up session
 app.use(passport.initialize()); // this is used to initialize passport
@@ -177,11 +177,11 @@ app.post("/pages/imageupload", upload.array("file"), async (req, res) => {
 app.post("/payment/initialize", async (req, res) => {
   const amount = Number(req.body.amount);
   const user = await req.user;
-  const { email, name, _id } = user;
+  const { email, _id } = user;
   // genarate a unique reference number from the date and time
   const date = new Date();
   const ref = `${date.getTime()}_jumax_${_id}`; // this is to generate a unique reference number
-  const callback_url = `https://judemaxi.com/payment/callback`; // this is to redirect to the website after payment
+  const callback_url = 'https://judemaxi.com/payment/callback'; // this is to redirect to the website after payment
 
   const params = JSON.stringify({
     email: email,

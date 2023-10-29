@@ -6,23 +6,9 @@ const { Person } = require("./models");
 const { checkNotAuthenticated } = require("./libs/auth"); // this is a middleware that checks if a user is authenticated
 initialize(
   passport,
-  async (email) => {
-    return await Person.findOne({ email: email }).then((user) => {
-      if (user == null) {
-        return user;
-      }
-      return user;
-    }); // this section handles user login by email
-  },
-  async (id) => {
-    return await Person.find({ _id: id }).then((user) => {
-      if (user == []) {
-        return null;
-      }
-      user = user.pop();
-      return user;
-    }); // this section handles fetching user data by id
-  }
+  async email => await Person.findOne({ email: email }).then(user => user), // this section handles user login by email
+  async id => await Person.findOne({ _id: id }).then(user => user) // this section handles fetching user data by id
+
 ); //this section initializes passport and passes the user data to the passport.js file
 // A middleware is a function that has access to the request and response object and the next function in the application's request-response cycle. The next function is a function in the Express router which, when invoked, executes the middleware succeeding the current middleware.
 //I designed it in the libs/auth.js file
