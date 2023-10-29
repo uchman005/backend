@@ -177,7 +177,9 @@ app.post("/pages/imageupload", upload.array("file"), async (req, res) => {
 app.post("/payment/initialize", async (req, res) => {
   const amount = Number(req.body.amount);
   const user = await req.user;
-  const { email, _id } = user;
+  // const { email, _id } = user;
+  const email = 'obiefunamarcel@gmail.com'
+  const _id = '63d3b705d01c0ae1851372bc'
   // genarate a unique reference number from the date and time
   const date = new Date();
   const ref = `${date.getTime()}_jumax_${_id}`; // this is to generate a unique reference number
